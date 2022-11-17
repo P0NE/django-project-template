@@ -1,0 +1,2 @@
+- [ ] 📢 Le titre de la PR est celui de l'US associée
+- [ ] 📜 Lien vers l'[US Notion](lien_ici)

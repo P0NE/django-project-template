@@ -1,0 +1,15 @@
+version: "3.7"
+x-project-name: example
+
+services:
+  db:
+    container_name: example_db
+    image: postgres:13
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: "root"
+      POSTGRES_DB: "example_db"
+      POSTGRES_PASSWORD: "password"

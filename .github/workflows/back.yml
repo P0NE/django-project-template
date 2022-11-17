@@ -1,0 +1,58 @@
+name: back
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: "3.10"
+
+      - id: cache-pipenv
+        uses: actions/cache@v1
+        with:
+          path: ~/.local/share/virtualenvs
+          key: ${{ runner.os }}-pipenv-${{ hashFiles('**/Pipfile.lock') }}
+
+      - name: Install dependencies with pipenv
+        run: |
+          cd backend
+          pip install pipenv
+          pipenv install --deploy --dev
+
+      - name: Run black
+        run: |
+          cd backend
+          pipenv run black --check .
+      - name: Run flake8
+        run: |
+          cd backend
+          pipenv run flake8 --max-line-length 300
+      - name: Run pytest
+        run: |
+          cd backend
+          pipenv run python manage.py test
+        env:
+          TEST_DB_HOST: localhost
+          TEST_DB_NAME: postgres
+          TEST_DB_PASS: postgres
+          TEST_DB_PORT: 5432
+          TEST_DB_USER: postgres
